@@ -1,0 +1,27 @@
+{
+  "name": "soup-dog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soup-dog/soup-dog.git"
+  },
+  "author": "soup-dog",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/soup-dog/soup-dog/issues"
+  },
+  "homepage": "https://github.com/soup-dog/soup-dog#readme",
+  "dependencies": {
+    "three": "^0.138.2"
+  },
+  "devDependencies": {
+    "webpack": "^5.69.1",
+    "webpack-cli": "^4.9.2"
+  }
+}
