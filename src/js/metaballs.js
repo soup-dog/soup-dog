@@ -5,10 +5,10 @@ import vertexShader from '../glsl/vertex.glsl';
 
 const MAX_METABALLS = 16;
 const FORCE_FACTOR = 50;
-const WIDTH = 144;
-const HEIGHT = 144;
+const SCALE_UPDATE_FACTOR = 0.001;
+const MIN_PIXELS = 16;
 
-
+const backgroundColour = new Color(0xf9f9ed);
 const colourChoices = [
     new Color(0xd9dbf1),
     new Color(0x8e9dcc),
@@ -31,23 +31,55 @@ function randomColour() {
     return colourChoices[MathUtils.randInt(0, colourChoices.length - 1)];
 }
 
+function clamp(value, min, max) {
+    return value <= min ? min : value >= max ? max : value;
+}
+
 window.onload = function() {
+    let target = new Vector2(0.5, 0.5);
+
+    function onMouseMove(event) {
+        event.preventDefault();
+        target = new Vector2((event.clientX - xOffset) / width, 1 - (event.clientY / height));
+    }
+
+    addEventListener("mousemove", onMouseMove, false);
+
     const scene = new Scene();
     const camera = new OrthographicCamera(0, 0, 0, 0, 0.1, 1000);
-    
-    document.body.style.backgroundColor = "#f9f9ed";
+
+    const backgroundColourHex = "#" + backgroundColour.getHexString()
+
+    document.body.style.backgroundColor = backgroundColourHex;
+
+    scene.background = backgroundColour;
 
     const renderer = new WebGLRenderer();
     renderer.domElement.style.position = "absolute";
     renderer.domElement.style.top = "0";
     renderer.domElement.style.left = "0";
     renderer.domElement.style.zIndex = "-1";
+    renderer.domElement.style.backgroundColor = backgroundColourHex;
+    renderer.domElement.style.imageRendering = "pixelated";
 
-    let width;
-    let height;
-    let xOffset;
+    let width = 0;
+    let height = 0;
+    let xOffset = 0;
 
-    let pixelated = false;
+    let renderScale = 1;
+
+    function updateRenderScale() {
+        if (renderScale !== 1) {
+            renderer.setSize(width * renderScale, height * renderScale, false);
+        }
+    }
+
+    function onWheel(event) {
+        renderScale = clamp(renderScale + event.deltaY * SCALE_UPDATE_FACTOR, MIN_PIXELS / height, 1);
+        updateRenderScale();
+    }
+
+    addEventListener("wheel", onWheel, false);
 
     function onResize() {
         width = window.innerHeight;
@@ -60,31 +92,12 @@ window.onload = function() {
         camera.updateProjectionMatrix();
         renderer.domElement.style.left = xOffset.toString() + "px";
         renderer.setSize(width, height);
-        updatePixelation();
+        updateRenderScale();
     }
 
     onResize();
 
     window.addEventListener("resize", onResize, false);
-
-    function updatePixelation() {
-        if (pixelated) {
-            renderer.setSize(width, height);
-            renderer.setSize(WIDTH, HEIGHT, false);
-            renderer.domElement.style.imageRendering = "pixelated";
-        }
-        else {
-            renderer.setSize(width, height);
-            renderer.domElement.style.imageRendering = "";
-        }
-    }
-
-    function onClick() {
-        pixelated = !pixelated;
-        updatePixelation();
-    }
-
-    window.addEventListener("click", onClick, false);
 
     document.body.appendChild(renderer.domElement);
 
@@ -98,7 +111,7 @@ window.onload = function() {
     
     const velocities = generateArray(() => new Vector2(), MAX_METABALLS);
     for (let i = 0; i < metaballCount; i++) {
-        velocities[i] = new Vector2(MathUtils.randFloatSpread(1), MathUtils.randFloatSpread(1));
+        velocities[i] = new Vector2(MathUtils.randFloatSpread(0.1), MathUtils.randFloatSpread(0.1));
     }
 
     const radii = generateArray(() => 0.015 + MathUtils.seededRandom() * 0.04, MAX_METABALLS);
@@ -119,7 +132,7 @@ window.onload = function() {
             Colours: {value: colourBuffer},
             Radii: {value: radii},
             Threshold: {value: 2.0},
-            BackgroundColour: {value: new Color(0xf9f9ed)},
+            BackgroundColour: {value: backgroundColour},
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
@@ -129,15 +142,6 @@ window.onload = function() {
     scene.add(mesh);
 
     const clock = new Clock(true);
-
-    let target = new Vector2();
-
-    function onMouseMove(event) {
-        event.preventDefault();
-        target = new Vector2((event.clientX - xOffset) / width, 1 - (event.clientY / height));
-    }
-
-    addEventListener("mousemove", onMouseMove, false);
 
     function onVisibilityChange() {
         if (document.visibilityState == "visible") {
