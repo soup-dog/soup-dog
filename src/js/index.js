@@ -60,8 +60,9 @@ window.onload = function() {
     }
 
     function animate() {
-        const deltaTime = clock.getDelta();
         requestAnimationFrame(animate);
+
+        const deltaTime = clock.getDelta();
 
         let destroy = false;
 
