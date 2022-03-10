@@ -61,7 +61,6 @@ window.onload = function() {
         if (value.startsWith("https://coolors.co/palette/")) {
             value = value.slice("https://coolors.co/palette/".length);
         }
-        console.log(value);
         const colourStrings = value.split("-");
         const colours = colourStrings.map(x => new Color(parseInt(x, 16)));
         // search for best background colour
