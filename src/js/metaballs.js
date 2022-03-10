@@ -48,19 +48,9 @@ window.onload = function() {
     const scene = new Scene();
     const camera = new OrthographicCamera(0, 0, 0, 0, 0.1, 1000);
 
-    const backgroundColourHex = "#" + backgroundColour.getHexString()
-
-    document.body.style.backgroundColor = backgroundColourHex;
-
     scene.background = backgroundColour;
 
     const renderer = new WebGLRenderer();
-    renderer.domElement.style.position = "absolute";
-    renderer.domElement.style.top = "0";
-    renderer.domElement.style.left = "0";
-    renderer.domElement.style.zIndex = "-1";
-    renderer.domElement.style.backgroundColor = backgroundColourHex;
-    renderer.domElement.style.imageRendering = "pixelated";
 
     let width = 0;
     let height = 0;
@@ -104,15 +94,9 @@ window.onload = function() {
     let metaballCount = 16;
 
     // init uniforms
-    const positions = generateArray(() => new Vector2(), MAX_METABALLS);
-    for (let i = 0; i < metaballCount; i++) {
-        positions[i] = new Vector2(MathUtils.seededRandom(), MathUtils.seededRandom());
-    }
+    const positions = generateArray(() => new Vector2(MathUtils.seededRandom(), MathUtils.seededRandom()), MAX_METABALLS);
     
-    const velocities = generateArray(() => new Vector2(), MAX_METABALLS);
-    for (let i = 0; i < metaballCount; i++) {
-        velocities[i] = new Vector2(MathUtils.randFloatSpread(0.1), MathUtils.randFloatSpread(0.1));
-    }
+    const velocities = generateArray(() => new Vector2(MathUtils.randFloatSpread(0.1), MathUtils.randFloatSpread(0.1)), MAX_METABALLS);
 
     const radii = generateArray(() => 0.015 + MathUtils.seededRandom() * 0.04, MAX_METABALLS);
 
