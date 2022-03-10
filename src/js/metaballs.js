@@ -50,14 +50,6 @@ window.onload = function() {
 
     addEventListener("mousemove", onMouseMove, false);
 
-    // if already seen info
-    if (sessionStorage.getItem(SEEN_INFO_KEY)) {
-        document.body.removeChild(document.getElementById("info-container")); // remove info container
-    }
-    else {
-        sessionStorage.setItem(SEEN_INFO_KEY, JSON.stringify(true)); // set seen info
-    }
-
     // pull params from query string
     const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop),
@@ -65,7 +57,12 @@ window.onload = function() {
 
     // if palette available in query string
     if (params.palette != null) {
-        const colourStrings = params.palette.split("-");
+        let value = params.palette;
+        if (value.startsWith("https://coolors.co/palette/")) {
+            value = value.slice("https://coolors.co/palette/".length);
+        }
+        console.log(value);
+        const colourStrings = value.split("-");
         const colours = colourStrings.map(x => new Color(parseInt(x, 16)));
         // search for best background colour
         let backgroundColourIndex;
@@ -86,6 +83,18 @@ window.onload = function() {
         colourChoices = colours;
     }
 
+    
+
+    // if already seen info
+    if (sessionStorage.getItem(SEEN_INFO_KEY)) {
+        document.body.removeChild(document.getElementById("info-container")); // remove info container
+    }
+    else {
+        document.getElementById("info-container").style.color = new Color(1 - backgroundColour.r, 1 - backgroundColour.g, 1 - backgroundColour.b).getStyle();
+        sessionStorage.setItem(SEEN_INFO_KEY, JSON.stringify(true)); // set seen info
+    }
+
+    document.getElementById("load-shield").style.color = backgroundColour.getStyle(); // set load shield background colour
     document.body.style.backgroundColor = backgroundColour.getStyle(); // set body background colour
 
     const scene = new Scene();
